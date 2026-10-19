@@ -1,0 +1,40 @@
+
+# Build outputs
+Src/build/
+
+# ROOT outputs & Logs
+*.root
+*.root.*
+*.log
+
+# Build outputs
+Src/build/
+
+# ROOT outputs & Logs
+*.root
+*.root.*
+*.log
+
+# Build outputs
+Src/build/
+
+# ROOT outputs & Logs
+*.root
+*.root.*
+*.log
+
+# Build outputs
+Src/build/
+
+# ROOT outputs & Logs
+*.root
+*.root.*
+*.log
+
+# Build outputs
+Src/build/
+
+# ROOT outputs & Logs
+*.root
+*.root.*
+*.log

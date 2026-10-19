@@ -3,40 +3,35 @@ input_file=$1
 output_file=$2
 year=$3
 dataset=$4
-mkdir -p  "logs/${year}/${year}${dataset}"
+
+mkdir -p "logs/${year}/${year}${dataset}"
 log_file="logs/${year}/${year}${dataset}/$(basename ${input_file}).log"
 failed_filelist="logs/failed_filelist_${year}${dataset}.txt"
 
-echo "=== System Info (uname -a) ==="
-uname -a
-echo ""
-echo "=== Running executable ==="
-# Replace the path with your actual executable path
-ldd /cmsuf/data/store/user/t2/users/neha.rawal/CSCAgeing_Run2_study/New_environment/CMSSW_15_0_4/src/Src/build/Analysis_exe
-# Define the path to your actual processing script (this same file, or another)
-##source /cvmfs/cms.cern.ch/cmsset_default.sh
-##cd /cmsuf/data/store/user/t2/users/neha.rawal/CSCAgeing_Run2_study/again_env/CMSSW_13_3_0/src/
-##eval `scramv1 runtime -sh`
-##cd -
-##echo "Processing $input_file" > $log_file
-##python3 -c "import ROOT; f=ROOT.TFile.Open('${input_file}'); exit(1) if not f or f.IsZombie() else exit(0)" >> $log_file 2>&1
-##if [ $? -ne 0 ]; then
-##		echo "ERROR: Could not open $input_file with ROOT" >> $log_file
-##		exit 1
-##fi
-##root -l -b -q 'check_file_open.C("'"${input_file}"'")' >> $log_file 2>&1
-##if [ $? -ne 0 ]; then
-##    echo "ERROR: Could not open $input_file with ROOT" >> $log_file
-##    exit 1
-##fi
+echo "=== System Info (uname -a) ===" > $log_file
+uname -a >> $log_file
+echo "" >> $log_file
+echo "=== Running executable ===" >> $log_file
 
-# Run your actual analysis
-/cmsuf/data/store/user/t2/users/neha.rawal/CSCAgeing_Run2_study/New_environment/CMSSW_15_0_4/src/Src/build/Analysis_exe "$input_file" "$output_file" "$year" >> $log_file 2>&1
-#../../Src/build/Analysis_exe "$input_file" "$output_file" "$year" >> $log_file 2>&1
-if [ $? -ne 0 ]; then
-	    echo "ERROR: Analysis failed for $input_file" >> $log_file
-			echo "$input_file $output_file" >> $failed_filelist
-			exit 2
+# Resolve path to the compiled Analysis_exe binary
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ANALYSIS_EXE="${SCRIPT_DIR}/../../Src/build/Analysis_exe"
+
+if [ ! -f "$ANALYSIS_EXE" ]; then
+    echo "ERROR: Executable $ANALYSIS_EXE not found!" >> $log_file
+    echo "$input_file $output_file" >> $failed_filelist
+    exit 1
 fi
-echo "Success for $input_file" >> $log_file
+
+# Execute Stage 2 skimmer: <input_ntuple> <output_root> <year>
+"$ANALYSIS_EXE" "$input_file" "$output_file" "$year" >> $log_file 2>&1
+status=$?
+
+if [ $status -ne 0 ]; then
+    echo "ERROR: Analysis failed with exit code $status for $input_file" >> $log_file
+    echo "$input_file $output_file" >> $failed_filelist
+    exit 2
+fi
+
+echo "SUCCESS: Processed $input_file -> $output_file" >> $log_file
 exit 0

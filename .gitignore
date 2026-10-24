@@ -1,0 +1,22 @@
+# ROOT compilation and dictionary artifacts
+*.so
+*.d
+*.pcm
+*_dict*
+run_chamber_C*
+
+# Data directories and ROOT outputs
+output_*/
+plots_*/
+plotfolder/
+*.root
+
+# Cluster execution logs
+*.log
+slurm_*.log
+slurm-*
+
+# Python caches
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
